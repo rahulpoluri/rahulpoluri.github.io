@@ -1,0 +1,541 @@
+import selenium,time,pyautogui;from selenium import webdriver
+import glob,os,xlrd
+from openpyxl import load_workbook
+import win32com
+import win32com.client
+import openpyxl
+result = 0
+while result is 0:
+    try:
+        driver=webdriver.Chrome(r'C:\Users\Rahul.Poluri\Desktop\chromedriver.exe')
+        driver.get(r'XXXXXXXXXXXXX')
+        time.sleep(1)
+        result=1
+    except:
+        pass
+
+
+driver.maximize_window()
+
+result = 0
+while result is 0:
+    try:
+        driver.find_element_by_xpath("//*[text()='Liberty Global']").click()
+        time.sleep(1)
+        result=1
+    except:
+        pass
+
+
+
+result = 0
+while result is 0:
+    try:
+        button=driver.find_element_by_name('select');button.click()
+        time.sleep(1)
+        result=1
+    except:
+        pass
+
+
+time.sleep(2)
+pyautogui.click(925, 496)
+time.sleep(2)
+pyautogui.click(514, 150)
+time.sleep(1)
+pyautogui.typewrite('XXXXXXXXXXXX')
+pyautogui.press('tab')
+pyautogui.typewrite('XXXXXXXXXXXX')
+time.sleep(2)
+pyautogui.press('enter')
+
+result = 0
+while result is 0:
+    try:
+        applications=driver.find_element_by_id(r'reg_img_304316340');applications.click()
+        time.sleep(1)
+        result=1
+    except:
+        pass
+result = 0
+while result is 0:
+    try:
+        incident_management=driver.find_element_by_link_text('Incident Management');incident_management.click()
+        time.sleep(1)
+        result=1
+    except:
+        pass
+result = 0
+while result is 0:
+    try:
+        search_incident=driver.find_element_by_link_text('Search Incident');search_incident.click()
+        time.sleep(1)
+        result=1
+    except:
+        pass
+#########################Extracting report from USMS & Running Macro for incidents###################################
+result = 0
+timeout=time.time()+30
+while result is 0:
+    try:
+        driver.find_element_by_link_text("My Reports").click()
+        result=1
+    except:
+        if time.time()>timeout:
+            print("'My Reports' ICON NOT FOUND")
+            break
+            sys.exit()
+
+
+result = 0
+timeout=time.time()+30
+while result is 0:
+    try:
+        driver.find_element_by_xpath("//*[text()='Run ...']").click()
+        result=1
+    except:
+        if time.time()>timeout:
+            print("'Run' ICON NOT FOUND")
+            break
+            sys.exit()
+
+
+result = 0
+timeout=time.time()+30
+while result is 0:
+    try:
+        driver.find_element_by_xpath("//*[text()='Report for servicemismatch']").click()
+        time.sleep(3)
+        result=1
+    except:
+        if time.time()>timeout:
+            print("'Report for servicemismatch' ICON NOT FOUND")
+            break
+            sys.exit()
+
+result = 0
+timeout=time.time()+30
+while result is 0:
+    try:
+        report = driver.window_handles[1]
+        driver.switch_to_window(report)
+        result=1
+    except:
+        if time.time()>timeout:
+            print("SOMETHING WENT WRONG REPORT NOT GENERATED")
+            break
+            sys.exit()
+
+print(1)
+
+result = 0
+timeout=time.time()+30
+while result is 0:
+    try:
+        driver.find_element_by_xpath("//*[@name='exportReport']").click()
+        time.sleep(3)
+        result=1
+    except:
+        if time.time()>timeout:
+            print("'Export' IMAGE NOT FOUND")
+            break
+            sys.exit()
+
+print(2)
+
+result = 0
+timeout=time.time()+30
+while result is 0:
+    try:
+        sbmt=driver.find_elements_by_xpath("//input[@value='OK'][@type='button'][@title='OK']")
+        for i in sbmt:
+            try:
+                i.click()
+            except:
+                pass
+        result=1
+    except:
+        if time.time()>timeout:
+            print("'OK' BUTTON NOT FOUND")
+            break
+            sys.exit()
+
+
+time.sleep(3)
+print(3)
+
+lfile=glob.glob(r'C:\Users\Rahul.Poluri\Downloads\*.xls')
+latest=max(lfile,key=os.path.getctime)
+wb=openpyxl.load_workbook(r"C:\Users\Rahul.Poluri\Desktop\Automation for service mismatch4.xlsm",keep_vba=True)
+ws=wb["Required fields"]
+ws['L3'].value=latest
+wb.save(r"C:\Users\Rahul.Poluri\Desktop\Automation for service mismatch4.xlsm")
+wb.close()
+
+xl=win32com.client.DispatchEx("Excel.Application")
+xl.visible= True
+xl.workbooks.open(r"C:\Users\Rahul.Poluri\Desktop\Automation for service mismatch4.xlsm")
+xl.application.run("Module1.servicemismatch")
+xl.DisplayAlerts=False
+#if saveAs:
+#    xl.ActiveWorkbook.SaveAs(r"C:\Users\Rahul.Poluri\Desktop\Automation for service mismatch4.xlsm")
+#else:
+xl.ActiveWorkbook.Save()
+xl.Quit()
+
+
+
+
+xl.application.quit()
+del xl
+wb=openpyxl.load_workbook(r"C:\Users\Rahul.Poluri\Desktop\Automation for service mismatch4.xlsm",keep_vba=True)
+ws=wb["Required fields"]
+incidentid=[]
+servicenumber=[]
+
+main=driver.window_handles[0]
+driver.switch_to_window(main)
+
+for i in range(3,100):
+    if ws.cell(i,10).value!=None:
+            servicenumber.append(ws.cell(i,11).value)
+            incidentid.append(ws.cell(i,10).value)
+
+for i in range(0,len(incidentid)):
+    INC=incidentid[i]
+    MYService=servicenumber[i]
+
+
+    ############################################################
+    #MYService="CRM DE"
+    #INC='INC000002295918'
+    ############################################################
+
+    result = 0
+    result1=0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            incident_id=driver.find_element_by_id('arid_WIN_3_1000000161');incident_id.send_keys(INC)
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Incident field' NOT FOUND")
+                result1=1
+                break
+
+    if result1==1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            search=driver.find_element_by_link_text('Search');search.click()
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Search' BUTTON NOT FOUND")
+                result1=1
+                break
+    if result1==1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            infobtn=driver.find_element_by_partial_link_text('Info');infobtn.click()
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Info' BUTTON NOT FOUND")
+                result1=1
+                break
+
+    if result1==1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+
+    ############################################################################################
+    #impact=driver.find_element_by_id('arid_WIN_3_1000000163').click()
+    # result = 0
+    # while result is 0:
+    #     try:
+    #         service_impact=driver.find_element_by_id('arid_WIN_3_600005022')
+    #         service_impact.click()
+    #         title=service_impact.get_attribute('title')
+    #         print(title)
+    #         MYService_Impacts=list(title)[0]
+    #         MYService_Impact=int(MYService_Impacts)
+    #         infobtn.click()
+    #         time.sleep(1)
+    #         result = 1
+    #     except:
+    #         pass
+    # ########################################################
+    # result = 0
+    # while result is 0:
+    #     try:
+    #         impact_measure=driver.find_element_by_id('arid_WIN_3_600005024')
+    #         impact_measure.click()
+    #         title=impact_measure.get_attribute('title')
+    #         print(title)
+    #         MYImpact_Measures=list(title)[0]
+    #         MYImpact_Measure=int(MYImpact_Measures)
+    #         infobtn.click()
+    #         time.sleep(1)
+    #         result = 1
+    #     except:
+    #         pass
+    #######################################################
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            impact=driver.find_element_by_id('arid_WIN_3_1000000163')
+            impact.click()
+            time.sleep(1)
+            title=impact.get_attribute('title')
+            print(title)
+            MYImpacts=list(title)[0]
+            MYImpact=int(MYImpacts)
+            infobtn.click()
+            time.sleep(1)
+            result = 1
+        except:
+            if time.time() > timeout:
+                print("'Impact field' NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+    ######################################################
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            urgency=driver.find_element_by_id('arid_WIN_3_1000000162')
+            urgency.click()
+            time.sleep(1)
+            title=urgency.get_attribute('title')
+            print(title)
+            MYUrgencys=list(title)[0]
+            MYUrgency=int(MYUrgencys)
+            infobtn.click()
+            time.sleep(1)
+            result = 1
+        except:
+            if time.time() > timeout:
+                print("'Impact field' NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+    #######################################################
+
+    #print(MYImpact,MYUrgency,MYService_Impact,MYImpact_Measure)
+    print(MYImpact,MYUrgency)
+    #######################################################
+    if MYImpact==4 and MYUrgency == 4 :
+        MYService_Impact=1
+        MYImpact_Measure = 0
+    elif MYImpact==4 and MYUrgency == 3 :
+        MYService_Impact=2
+        MYImpact_Measure =1
+    elif MYImpact==3 and MYUrgency == 3 :
+        MYService_Impact=2
+        MYImpact_Measure =2
+    elif MYImpact==2 and MYUrgency == 3 :
+        MYService_Impact=2
+        MYImpact_Measure =3
+    elif MYImpact==1 and MYUrgency == 3 :
+        MYService_Impact=2
+        MYImpact_Measure =4
+    elif MYImpact==4 and MYUrgency == 2 :
+        MYService_Impact=3
+        MYImpact_Measure =1
+    elif MYImpact==3 and MYUrgency == 2 :
+        MYService_Impact=3
+        MYImpact_Measure =2
+    elif MYImpact==2 and MYUrgency == 2 :
+        MYService_Impact=3; MYImpact_Measure =3
+    elif MYImpact==1 and MYUrgency == 2 :
+        MYService_Impact=3
+        MYImpact_Measure =4
+    elif MYImpact==4 and MYUrgency == 1 :
+        MYService_Impact=4
+        MYImpact_Measure =1
+    elif MYImpact==3 and MYUrgency == 1 :
+        MYService_Impact=4
+        MYImpact_Measure =2
+    elif MYImpact==2 and MYUrgency == 1 :
+        MYService_Impact=4
+        MYImpact_Measure =3
+    elif MYImpact==1 and MYUrgency == 1 :
+        MYService_Impact=4
+        MYImpact_Measure =4
+    else:
+        pass
+    print(MYService_Impact,MYImpact_Measure)
+    ############################################
+    if MYImpact_Measure==0:
+        pass
+    else:
+        MYImpact_Measure -= 1
+    MYService_Impact-=1
+    ############################################
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            service_impact=driver.find_element_by_id('arid_WIN_3_600005022');service_impact.click()
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Impact field' NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            serviceimpactoption=driver.find_elements_by_class_name('MenuTableRow')[MYService_Impact];serviceimpactoption.click()
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'serviceimpact field' NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+    ############################################
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            impact_measure=driver.find_element_by_id('arid_WIN_3_600005024');impact_measure.click()
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Impact field' NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            impactmeasureoption =driver.find_elements_by_class_name('MenuTableRow')[MYImpact_Measure];impactmeasureoption.click()
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Impact Measure field' NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+    ############################################
+
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            service=driver.find_element_by_id('arid_WIN_3_303497300');service.clear();service.send_keys(MYService)
+            time.sleep(1)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Service field' NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+    ############################################
+    # import time
+    # timelimit=time.time()
+    # result = 0
+    # while result < 5:
+    #    try:
+           #savebtn=driver.find_element_by_link_text('Save')
+    result = 0
+    result1 = 0
+    timeout = time.time() + 30
+    while result is 0:
+        try:
+            infobtn.click()
+            savebtn = driver.find_elements_by_link_text("Save")
+            savebtn[1].click()
+            time.sleep(3)
+            result=1
+        except:
+            if time.time() > timeout:
+                print("'Save' BUTTON NOT FOUND")
+                result1 = 1
+                break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search');
+        searchbutton.click()
+        continue
+       #     if time.time()-timelimit>2:
+       #         break
+       # except:
+       #     result += 1
+
+
+    result = 0
+    timeout = time.time() + 30
+    while result is 0:
+       try:
+           searchbutton=driver.find_element_by_link_text('New search');searchbutton.click()
+           time.sleep(3)
+           result=1
+       except:
+           if time.time() > timeout:
+               print("'New search' BUTTON NOT FOUND")
+               result1 = 1
+               break
+    if result1 == 1:
+        searchbutton = driver.find_element_by_link_text('New search')
+        searchbutton.click()
+        continue

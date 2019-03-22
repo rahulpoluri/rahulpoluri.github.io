@@ -1,0 +1,38 @@
+#loading libraries
+import selenium,time,pyautogui;from selenium import webdriver
+import glob,os,xlrd
+from openpyxl import load_workbook
+import win32com
+import win32com.client
+import openpyxl
+
+#opening webdriver
+driver=webdriver.Chrome()
+driver.maximize_window()
+driver.get("http://google.com")
+
+#opening excel interface
+xl=win32com.client.DispatchEx("Excel.Application")
+xl.visible= True
+wb=xl.workbooks.open(r"C:\Users\Rahul.Poluri\Desktop\SMC Reporting.xlsm")
+ws=wb.worksheets(1)
+
+#Linking with excel interface
+while True:
+    xl.application.run("Module1.clearing_value")
+    xl.application.run("Module1.engine")
+    a=ws.cells(1,26).value
+    xl.application.run("Module1.clearing_value")
+    
+
+    
+######   EXCUTING CASES    ######################################################################    
+        ################### Opening USMS #########################################
+    if a==1:        
+        import opening_usms
+        opening_usms.opening_usms(driver,time,pyautogui)
+        ################## Opening bugzilla ########################################
+    elif a==2:
+        import opening_bugzilla
+        opening_bugzilla.opening_bugzilla(driver)
+

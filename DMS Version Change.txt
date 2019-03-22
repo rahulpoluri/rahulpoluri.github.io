@@ -1,0 +1,165 @@
+
+import time, pyautogui,openpyxl
+from selenium import webdriver
+row=1
+driver=webdriver.Chrome(r'C:\Users\Rahul.Poluri\Desktop\chromedriver.exe')
+driver.execute_script("window.open ('about.blank','tab2',)")
+window_before=driver.window_handles[0]
+window_after=driver.window_handles[1]
+def login(driver):
+        username = driver.find_element_by_id("xxxxxxxxxx")
+        username.send_keys("xxxxxxxxxxx")
+        password = driver.find_element_by_id("xxxxxxxxxx")
+        password.send_keys("xxxxxxxxxxxx")
+        submitbutton = driver.find_element_by_xpath("//input[@type='submit']")
+        submitbutton.click()
+        catogorym = driver.find_element_by_link_text("Category Management")
+        catogorym.click()
+        catogory = driver.find_element_by_link_text("Categories")
+        catogory.click()
+def screen2enterold(y): #in both screens using element text match#in function it is not changing the window
+        screen1 = driver.find_elements_by_xpath("//td[@class='copy']/a")#changed
+        screen1[y].click()
+        accessrights = driver.find_element_by_xpath("//a[text()='Access Rights']").click()
+def screen2enternew(y,screen1text):        
+        driver.switch_to_window(window_after)
+        driver.find_element_by_xpath("""//td[@class='copy']/a[text()='"""+screen1text[y]+"""']""").click()
+        accessrights = driver.find_element_by_xpath("//a[text()='Access Rights']").click()
+def screen3enterold(w):
+        screen2=list(driver.find_elements_by_xpath("//table[@class='items-table']/tbody/tr/td[1]"))[1:]
+        screen2links=(driver.find_elements_by_xpath("//table[@class='items-table']/tbody/tr/td[2]/a"))
+        screen2text=list(map(lambda z:z.text,screen2))
+        screen2links[w].click()
+def screen3enternew(w,screen2text):
+        driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr/td[text()='"""+screen2text[w]+"""']//following ::a""").click()
+def screen3recordmaker():
+        screen3record=[]
+        firstitem=driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x3)+"""]/td[2]""").text
+        screen3record.append(firstitem)
+        seconditem=driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]/td[3]/input""")
+        screen3record.append('Yes') if seconditem.get_attribute('checked') else screen3record.append('No')
+        thirditem=driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]/td[4]/table/tbody/tr/td[1]/input""")
+        screen3record.append('Yes') if thirditem.get_attribute('checked') else screen3record.append('No')
+        fourthitem=driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]/td[4]/table/tbody/tr/td[2]/input""")
+        screen3record.append('Yes') if fourthitem.get_attribute('checked') else screen3record.append('No')
+        fifthitem=driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]/td[5]/input""")
+        screen3record.append('Yes') if fifthitem.get_attribute('checked') else screen3record.append('No')
+        sixthitem=driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]/td[6]/input""")
+        screen3record.append('Yes') if sixthitem.get_attribute('checked') else screen3record.append('No')
+        print(screen3record)
+        return screen3record
+
+            
+        
+    
+#----------------------------------------------------------Code starts from here----------------------------------------------------------#        
+
+# old in window one
+driver.switch_to_window(window_before)
+driver.get(r'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')#URL Old version
+login(driver)
+# new in window two
+driver.switch_to_window(window_after)
+driver.get(r'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')#URL new version
+login(driver)
+driver.switch_to_window(window_before)
+#reading screen1 records into list
+screen1 = driver.find_elements_by_xpath("//td[@class='copy']/a")
+screen1text=list(map(lambda z:z.text,screen1))
+
+#for y in range(0,len(screen1text))#For Running All catogories
+for y in range(0,1): #For Manual Control(Total 43 count, index starting with 0)
+        #for entering in to screen2 of  selected category
+        driver.switch_to_window(window_before)
+        screen2enterold(y)
+        driver.switch_to_window(window_after)
+        screen2enternew(y,screen1text)
+        driver.switch_to_window(window_before)
+        #reading screen2 records into list# first element is empty index should start from 0
+        screen2=list(driver.find_elements_by_xpath("//table[@class='items-table']/tbody/tr/td[1]"))[1:]
+        screen2text=list(map(lambda z:z.text,screen2))
+        screen2links=(driver.find_elements_by_xpath("//table[@class='items-table']/tbody/tr/td[2]/a"))
+        print("in "+ screen1text[y])
+
+        #for w in range(0,1):#For Manuel control,index starts from 0
+        for w in range(0,len(screen2text)):#For Running all application catogories
+                driver.switch_to_window(window_before)
+                screen3enterold(w)
+                driver.switch_to_window(window_after)
+                screen3enternew(w,screen2text)
+                driver.switch_to_window(window_before)
+                #reading screen3 records to find the iterations of loop
+                screen3len=len(driver.find_elements_by_xpath("//table[@class='items-table']/tbody/tr")[2:])
+                print("in "+ screen1text[y]+" "+screen2text[w])
+                for x in range(0,screen3len):#For Manuel control,index starts from 0
+                #for  x in range(0,screen3len):
+                        driver.switch_to_window(window_before)
+                        recordlength=len(driver.find_elements_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]//input"""))-2
+                        record=[]
+                        record.append(driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]/td[2]""").text)
+                        for i in range(1,recordlength):
+                               v=driver.find_element_by_xpath("""//table[@class='items-table']/tbody/tr["""+str(x+3)+"""]/td[2]//following::input["""+str(i)+"""]""")
+                               record.append('Yes') if v.get_attribute('checked') else record.append('No')
+
+
+                        driver.switch_to_window(window_after)
+                        print("Record to be found " +str(record))
+                        try:
+                                found=driver.find_element_by_xpath("""//*[text()='"""+record[0]+"""']""")
+                                print("Record found " )
+                                for i in range(1,recordlength):
+                                        checkbox=driver.find_element_by_xpath("""//*[text()='"""+record[0]+"""']// following::input["""+str(i)+"""]""")
+                                        u=1 if checkbox.get_attribute("checked") else 0
+                                        if ((u==1 and record[i]=="No") or(u==0 and record[i]=="Yes")):
+                                                checkbox.click()
+                                print("Check boxes aligned" )
+                        except:#when record is not found on screen
+                                        print("Record not found" )
+                                        driver.find_element_by_xpath("//span[text()='Add']").click()
+                                        try:#when record is found in add list
+                                                driver.find_element_by_xpath("//option[text()='"+record[0]+"']").click()
+                                                driver.find_element_by_xpath("//*[@name='Button']").click()
+                                                driver.find_element_by_xpath("//img[@alt='Save']").click()
+                                                print("Record Added" )
+                                                for i in range(1,recordlength):
+                                                        checkbox=driver.find_element_by_xpath("""//*[text()='"""+record[0]+"""']// following::input["""+str(i)+"""]""")
+                                                        u=1 if checkbox.get_attribute("checked") else 0
+                                                        if ((u==1 and record[i]=="No") or(u==0 and record[i]=="Yes")):checkbox.click()
+                                                print("Check boxes aligned" )      
+                                        except:#when record is not found even in add list
+                                                driver.find_element_by_xpath("//img[@alt='Save']").click()
+                                                print("Record not found in add list "+str(record))
+                                                #to be reported in excel
+                                                pass
+                        driver.find_element_by_xpath("//img[@alt='Save']").click()
+                        driver.switch_to_window(window_before)
+                        #break
+                #===========================================================Removing code starts from here=================================================================#
+                driver.switch_to_window(window_before)
+                screen3oldraw=driver.find_elements_by_xpath("//table[@class='items-table']/tbody/tr")[2:]
+                screen3oldtext=list(map(lambda z:z.text,screen3oldraw))
+                driver.switch_to_window(window_after)
+                screen3newraw=driver.find_elements_by_xpath("//table[@class='items-table']/tbody/tr")[2:]
+                screen3newtext=list(map(lambda z:z.text,screen3newraw))
+                recordtoremove=list(set(screen3newtext)-set(screen3oldtext))
+                for i in recordtoremove:
+                        driver.find_element_by_xpath("""//*[text()='"""+i+"""']//preceding::input[3]""").click()
+                driver.find_element_by_xpath("//span[text()='Remove']").click()
+                driver.switch_to_alert().accept()
+                print(str(recordtoremove) + " are removed")
+                #==========================================================================================================================================================#
+                driver.switch_to_window(window_after)
+                driver.find_element_by_xpath("//img[@alt='Cancel']").click()
+                driver.switch_to_window(window_before)
+                driver.find_element_by_xpath("//img[@alt='Cancel']").click()
+                #break
+        driver.switch_to_window(window_after)
+        driver.find_element_by_xpath("//img[@alt='Cancel']").click()
+        driver.switch_to_window(window_before)
+        driver.find_element_by_xpath("//img[@alt='Cancel']").click()
+        #break
+        
+
+
+
+                 
